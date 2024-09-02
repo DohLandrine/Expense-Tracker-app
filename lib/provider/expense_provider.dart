@@ -83,7 +83,7 @@ class ExpenseProvider extends ChangeNotifier {
       "invoice": invoice
     };
     Map<String, String> headers = {'Content-Type': 'application/json'};
-    final response = await http.post(Uri.parse(Url.addExpense),
+    final response = await http.put(Uri.parse(Url.addExpense),
         body: json.encode(data), headers: headers);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
