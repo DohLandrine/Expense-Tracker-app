@@ -1,10 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:expense_tracker/constants/form_decoration.dart';
+import 'package:expense_tracker/constants/snackbar.dart';
 import 'package:expense_tracker/constants/theme.dart';
+import 'package:expense_tracker/provider/expense_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class AddPage extends StatefulWidget {
-
   const AddPage({super.key});
 
   @override
@@ -12,6 +15,10 @@ class AddPage extends StatefulWidget {
 }
 
 class _AddPageState extends State<AddPage> {
+  String amount = '';
+  String? name;
+  bool loading = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -56,6 +63,9 @@ class _AddPageState extends State<AddPage> {
                     padding: EdgeInsets.only(
                         right: MediaQuery.of(context).size.width * 0.5),
                     child: TextFormField(
+                      onChanged: (value) {
+                        amount = value;
+                      },
                       autofocus: true,
                       cursorColor: Colour.dark,
                       style: const TextStyle(
@@ -74,6 +84,9 @@ class _AddPageState extends State<AddPage> {
                     padding: EdgeInsets.only(
                         right: MediaQuery.of(context).size.width * 0.2),
                     child: TextFormField(
+                      onChanged: (value) {
+                        name = value;
+                      },
                       decoration: customDecoration.copyWith(labelText: 'Name'),
                       style: const TextStyle(
                         fontWeight: FontWeight.w300,
@@ -89,29 +102,61 @@ class _AddPageState extends State<AddPage> {
                   ),
                   Align(
                     alignment: Alignment.bottomRight,
-                    child: RawMaterialButton(
-                      padding: const EdgeInsets.all(10),
-                      onPressed: () {},
-                      shape: RoundedRectangleBorder(
-                        side: const BorderSide(
-                          color: Colour.blue,
-                        ),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      fillColor: Colour.darkBlue,
-                      child: const Text(
-                        "Add",
-                        style: TextStyle(
-                          color: Colour.white,
-                          fontSize: 14,
-                        ),
-                      ),
+                    child: Consumer<ExpenseProvider>(
+                      builder: (BuildContext context, ExpenseProvider value,
+                          Widget? child) {
+                        return RawMaterialButton(
+                          padding: const EdgeInsets.all(10),
+                          onPressed: () async {
+                            setState(() {
+                              loading = true;
+                            });
+                            await value.addExpense(
+                                name: name,
+                                amount: int.parse(amount),
+                                invoice: "Landrine");
+                            if (value.state == Status.success) {
+                              print("success");
+                              setState(() {
+                                loading = false;
+                              });
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                customSnackBar(
+                                    content: "Expense added succesfully",
+                                    icon: Icons.add_task_outlined,
+                                    colour: Colour.green),
+                              );
+                            } else {
+                              print('Error');
+                            }
+                          },
+                          shape: RoundedRectangleBorder(
+                            side: const BorderSide(
+                              color: Colour.blue,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          fillColor: Colour.darkBlue,
+                          child: loading
+                              ? const CircularProgressIndicator(
+                                  color: Colour.white,
+                                )
+                              : const Text(
+                                  "Add",
+                                  style: TextStyle(
+                                    color: Colour.white,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                        );
+                      },
                     ),
                   )
                 ],
               ),
             )),
-          )
+          ),
         ],
       ),
     );

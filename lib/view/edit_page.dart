@@ -1,19 +1,29 @@
+// ignore_for_file: use_build_context_synchronously
 
 import 'package:expense_tracker/constants/form_decoration.dart';
+import 'package:expense_tracker/constants/snackbar.dart';
 import 'package:expense_tracker/constants/theme.dart';
+import 'package:expense_tracker/provider/expense_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class EditPage extends StatefulWidget {
   final int amount;
   final String name;
+  final String? expenseId;
 
-  const EditPage({super.key, required this.amount, required this.name});
+  const EditPage(
+      {super.key,
+      required this.amount,
+      required this.name,
+      required this.expenseId});
 
   @override
   State<EditPage> createState() => _EditPageState();
 }
 
 class _EditPageState extends State<EditPage> {
+  bool loading = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,6 +57,43 @@ class _EditPageState extends State<EditPage> {
                 ),
               ],
             ),
+          ),
+          Consumer<ExpenseProvider>(
+            builder:
+                (BuildContext context, ExpenseProvider value, Widget? child) {
+              return GestureDetector(
+                onTap: () async {
+                  loading = true;
+                  await value.deleteExpense(expenseId: widget.expenseId!);
+
+                  if (value.state == Status.success) {
+                    print("success");
+                    setState(() {
+                      loading = false;
+                    });
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      customSnackBar(
+                          content: "Expense deleted succesfully",
+                          icon: Icons.delete_forever,
+                          colour: Colour.green),
+                    );
+                  } else {
+                    print('Error');
+                  }
+                },
+                child: loading
+                    ? const SizedBox(
+                        height: 40,
+                        width: 40,
+                        child: CircularProgressIndicator(),
+                      )
+                    : const Icon(
+                        Icons.delete_rounded,
+                        color: Colour.darkBlue,
+                      ),
+              );
+            },
           ),
           Expanded(
             flex: 3,

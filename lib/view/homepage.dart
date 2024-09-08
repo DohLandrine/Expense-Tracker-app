@@ -2,7 +2,7 @@ import 'package:expense_tracker/constants/theme.dart';
 import 'package:expense_tracker/view/add_page.dart';
 import 'package:expense_tracker/view/edit_page.dart';
 import 'package:flutter/material.dart';
-import 'package:expense_tracker/provider/expense_provider.dart' as exp;
+import 'package:expense_tracker/provider/expense_provider.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -40,7 +40,7 @@ class _HomepageState extends State<Homepage> {
           ),
           Expanded(
             child: FutureBuilder(
-              future: exp.ExpenseProvider.instance.getExpense(),
+              future: ExpenseProvider.instance.getExpense(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const SizedBox(
@@ -70,32 +70,18 @@ class _HomepageState extends State<Homepage> {
                                   builder: (context) => EditPage(
                                     amount: snapshot.data![index].amount!,
                                     name: snapshot.data![index].name!,
+                                    expenseId: snapshot.data![index].id,
                                   ),
                                 ),
                               );
                             },
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                SizedBox(
-                                  width: 80,
-                                  child: Text(
-                                    overflow: TextOverflow.ellipsis,
-                                    maxLines: 1,
-                                    '${snapshot.data![index].date}',
-                                  ),
-                                ),
-                                const SizedBox(width: 10),
-                                GestureDetector(
-                                  onTap: () {
-                                    // delete the expeense here
-                                  },
-                                  child: const Icon(
-                                    Icons.delete_rounded,
-                                    color: Colour.darkBlue,
-                                  ),
-                                )
-                              ],
+                            trailing: SizedBox(
+                              width: 80,
+                              child: Text(
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
+                                '${snapshot.data![index].date}',
+                              ),
                             ),
                             subtitle: Text(
                               '${snapshot.data![index].name}',
@@ -127,6 +113,9 @@ class _HomepageState extends State<Homepage> {
                 }
               },
             ),
+          ),
+          const SizedBox(
+            height: 50,
           )
         ],
       ),

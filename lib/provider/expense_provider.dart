@@ -6,32 +6,30 @@ import 'package:http/http.dart' as http;
 
 class ExpenseProvider extends ChangeNotifier {
   static ExpenseProvider instance = ExpenseProvider();
-  State state = State.nothing;
-  ExpenseProvider() {
-    //
-  }
+  Status? state;
+  ExpenseProvider() {}
 
   Future<List<ExpenseModel>> getExpense() async {
-    state = State.loading;
+    state = Status.loading;
     notifyListeners();
     final response = await http.get(Uri.parse(Url.getAllExpennse));
     if (response.statusCode == 200 || response.statusCode == 201) {
-      state = State.success;
+      state = Status.success;
       notifyListeners();
       List jsonData = jsonDecode(response.body);
       return jsonData.map((data) => ExpenseModel.fromJson(data)).toList();
     } else {
-      state = State.error;
+      state = Status.error;
       notifyListeners();
       return [];
     }
   }
 
-  void addExpense(
+  Future<void> addExpense(
       {required String? name,
       required int? amount,
       required String? invoice}) async {
-    state = State.loading;
+    state = Status.loading;
     notifyListeners();
     Map<String, dynamic> data = {
       "name": name,
@@ -43,16 +41,16 @@ class ExpenseProvider extends ChangeNotifier {
         body: json.encode(data), headers: headers);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      state = State.success;
+      state = Status.success;
       notifyListeners();
     } else {
-      state = State.error;
+      state = Status.error;
       notifyListeners();
     }
   }
 
-  void deleteExpense({required String expenseId}) async {
-    state = State.loading;
+  Future<void> deleteExpense({required String expenseId}) async {
+    state = Status.loading;
     notifyListeners();
     Map<String, String> body = {"expenseID": expenseId};
     Map<String, String> headers = {'Content-Type': 'application/json'};
@@ -60,10 +58,10 @@ class ExpenseProvider extends ChangeNotifier {
         body: json.encode(body), headers: headers);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      state = State.success;
+      state = Status.success;
       notifyListeners();
     } else {
-      state = State.error;
+      state = Status.error;
       notifyListeners();
     }
   }
@@ -72,9 +70,8 @@ class ExpenseProvider extends ChangeNotifier {
       {required String? name,
       required int? amount,
       required String? invoice,
-      required String expenseId
-      }) async {
-    state = State.loading;
+      required String expenseId}) async {
+    state = Status.loading;
     notifyListeners();
     Map<String, dynamic> data = {
       "expenseID": expenseId,
@@ -87,19 +84,16 @@ class ExpenseProvider extends ChangeNotifier {
         body: json.encode(data), headers: headers);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
-      state = State.success;
+      state = Status.success;
       notifyListeners();
     } else {
-      state = State.error;
+      state = Status.error;
       notifyListeners();
     }
   }
-  
-
-  
 }
 
-enum State {
+enum Status {
   nothing,
   loading,
   success,
