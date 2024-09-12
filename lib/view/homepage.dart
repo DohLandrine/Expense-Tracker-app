@@ -1,8 +1,12 @@
+import 'package:expense_tracker/constants/snackbar.dart';
 import 'package:expense_tracker/constants/theme.dart';
+import 'package:expense_tracker/model/express_model.dart';
 import 'package:expense_tracker/view/add_page.dart';
 import 'package:expense_tracker/view/edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/provider/expense_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:expense_tracker/provider/refresh_provider.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
@@ -40,6 +44,7 @@ class _HomepageState extends State<Homepage> {
           ),
           Expanded(
             child: FutureBuilder(
+              initialData: [],
               future: ExpenseProvider.instance.getExpense(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -54,60 +59,75 @@ class _HomepageState extends State<Homepage> {
                     child: Text('Please turn on your mobile data'),
                   );
                 } else if (snapshot.connectionState == ConnectionState.done) {
-                  return SizedBox(
-                    height: 40,
-                    width: double.infinity,
-                    child: ListView.separated(
-                      itemCount: snapshot.data!.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                          child: ListTile(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => EditPage(
-                                    amount: snapshot.data![index].amount!,
-                                    name: snapshot.data![index].name!,
-                                    expenseId: snapshot.data![index].id,
+                  if (snapshot.data == null) {
+                    return GestureDetector(
+                      child: Container(
+                        color: Colour.darkWhite,
+                      ),
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                        customSnackBar(
+                            content:
+                                "An error occured, Please turn on your mobile data",
+                            icon: Icons.e_mobiledata,
+                            colour: Colour.red),
+                      ),
+                    );
+                  } else {
+                    return SizedBox(
+                      height: 40,
+                      width: double.infinity,
+                      child: ListView.separated(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 15),
+                            child: ListTile(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditPage(
+                                      amount: snapshot.data![index].amount!,
+                                      name: snapshot.data![index].name!,
+                                      expenseId: snapshot.data![index].id,
+                                    ),
                                   ),
+                                );
+                              },
+                              trailing: SizedBox(
+                                width: 80,
+                                child: Text(
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  '${snapshot.data![index].date}',
                                 ),
-                              );
-                            },
-                            trailing: SizedBox(
-                              width: 80,
-                              child: Text(
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                '${snapshot.data![index].date}',
                               ),
+                              subtitle: Text(
+                                '${snapshot.data![index].name}',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                              title: Text(
+                                '${snapshot.data![index].amount}',
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 2,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(color: Colour.dark),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              // tileColor: Colour.white,
                             ),
-                            subtitle: Text(
-                              '${snapshot.data![index].name}',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                            ),
-                            title: Text(
-                              '${snapshot.data![index].amount}',
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 2,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              side: const BorderSide(color: Colour.dark),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            // tileColor: Colour.white,
-                          ),
-                        );
-                      },
-                      separatorBuilder: (BuildContext context, int index) {
-                        return const SizedBox(
-                          height: 20,
-                        );
-                      },
-                    ),
-                  );
+                          );
+                        },
+                        separatorBuilder: (BuildContext context, int index) {
+                          return const SizedBox(
+                            height: 20,
+                          );
+                        },
+                      ),
+                    );
+                  }
                 } else {
                   return const Text("Error ohh");
                 }

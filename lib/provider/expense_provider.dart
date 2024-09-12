@@ -9,7 +9,7 @@ class ExpenseProvider extends ChangeNotifier {
   Status? state;
   ExpenseProvider() {}
 
-  Future<List<ExpenseModel>> getExpense() async {
+  Future<List<ExpenseModel>?> getExpense() async {
     state = Status.loading;
     notifyListeners();
     final response = await http.get(Uri.parse(Url.getAllExpennse));
@@ -21,7 +21,7 @@ class ExpenseProvider extends ChangeNotifier {
     } else {
       state = Status.error;
       notifyListeners();
-      return [];
+      return null;
     }
   }
 
@@ -37,13 +37,18 @@ class ExpenseProvider extends ChangeNotifier {
       "invoice": invoice
     };
     Map<String, String> headers = {'Content-Type': 'application/json'};
-    final response = await http.post(Uri.parse(Url.addExpense),
-        body: json.encode(data), headers: headers);
+    try {
+      final response = await http.post(Uri.parse(Url.addExpense),
+          body: json.encode(data), headers: headers);
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      state = Status.success;
-      notifyListeners();
-    } else {
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        state = Status.success;
+        notifyListeners();
+      } else {
+        state = Status.error;
+        notifyListeners();
+      }
+    } catch (e) {
       state = Status.error;
       notifyListeners();
     }
@@ -66,7 +71,7 @@ class ExpenseProvider extends ChangeNotifier {
     }
   }
 
-  void updateExpense(
+  Future<void> updateExpense(
       {required String? name,
       required int? amount,
       required String? invoice,
@@ -80,7 +85,7 @@ class ExpenseProvider extends ChangeNotifier {
       "invoice": invoice
     };
     Map<String, String> headers = {'Content-Type': 'application/json'};
-    final response = await http.put(Uri.parse(Url.addExpense),
+    final response = await http.put(Uri.parse(Url.updateExpense),
         body: json.encode(data), headers: headers);
 
     if (response.statusCode == 200 || response.statusCode == 201) {
