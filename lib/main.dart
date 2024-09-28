@@ -1,5 +1,4 @@
 import 'package:expense_tracker/provider/expense_provider.dart';
-import 'package:expense_tracker/provider/refresh_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/view/homepage.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +15,6 @@ class MyApp extends StatelessWidget {
       
       providers: [
         ChangeNotifierProvider<ExpenseProvider>(create: (context) => ExpenseProvider()),
-        ChangeNotifierProvider<RefreshProvider>(create: (context) => RefreshProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

@@ -1,12 +1,9 @@
 import 'package:expense_tracker/constants/snackbar.dart';
 import 'package:expense_tracker/constants/theme.dart';
-import 'package:expense_tracker/model/express_model.dart';
 import 'package:expense_tracker/view/add_page.dart';
 import 'package:expense_tracker/view/edit_page.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/provider/expense_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:expense_tracker/provider/refresh_provider.dart';
 
 class Homepage extends StatefulWidget {
   const Homepage({super.key});
